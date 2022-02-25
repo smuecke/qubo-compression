@@ -14,7 +14,7 @@ def dict_to_vec(sample, n):
 def energy_arrays(result, qubo):
     arr_reported = []
     arr_true = []
-    for sample, reported_energy, occ in sorted(result.aggregate().record, key=itemgetter(1)):
+    for sample, reported_energy, occ, *_ in sorted(result.aggregate().record, key=itemgetter(1)):
         true_energy = sample @ qubo @ sample
         arr_true.extend([true_energy]*occ)
         arr_reported.extend([reported_energy]*occ)

@@ -55,8 +55,10 @@ def scale(x: ArrayLike, max_norm: float=1.0) -> ArrayLike:
 
     Returns:
         ArrayLike: Scaled array.
+        float: Scale factor applied to x.
     """
-    return x * (max_norm / np.abs(x).max())
+    factor = max_norm/np.abs(x).max()
+    return x * factor, factor
 
 
 def to_bit_range(x: ArrayLike, bits: int=16) -> ArrayLike:
@@ -70,7 +72,8 @@ def to_bit_range(x: ArrayLike, bits: int=16) -> ArrayLike:
         ArrayLike: Rounded array. Note this will still be of floating type.
     """
     assert bits <= 64, 'Cannot represent bit ranges beyond 64 bits'
-    return scale(x, max_norm=2**(bits-1)-1).round()
+    scaled, factor = scale(x, max_norm=2**(bits-1)-1)
+    return scaled.round()/factor
 
 
 def to_sparse_dict(x: ArrayLike):

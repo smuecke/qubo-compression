@@ -9,8 +9,8 @@ from neal         import SimulatedAnnealingSampler
 from tqdm         import trange
 
 from analyze import energy_arrays
-from misc    import get_numerical_seed, get_random_state, random_seeds, timestamp
-from qubo    import random_subset_sum, to_bit_range, to_sparse_dict
+from misc    import get_numerical_seed, get_random_state, random_seeds, save_json, timestamp
+from qubo    import random_subset_sum, to_bit_range
 
 
 def get_args():
@@ -27,9 +27,10 @@ def main(n: int, seed=None, output='', simulate=False):
     sampler = SimulatedAnnealingSampler() if simulate else EmbeddingComposite(DWaveSampler())
     qubo, opt = random_subset_sum(n)
     
-    bits        = [32, 16, 12, 8, 6, 4]
+    # manual settings
+    bits        = [32, 16, 8, 4]
     reads       = 1024
-    repetitions = 1000
+    repetitions = 5
 
     all_energies = np.empty((len(bits), repetitions, 2, reads))
     meta_info    = {
@@ -48,13 +49,13 @@ def main(n: int, seed=None, output='', simulate=False):
         for bit_ix, b in enumerate(bits):
             qubo_ = to_bit_range(qubo, bits=b)
             bqm = BQM(qubo_, 'BINARY')
-            result = sampler.sample(bqm, num_reads=reads, seed=next(seeds))
+            additional_kwargs = {'seed': next(seeds)} if simulate else {'label': f'{n=}@{b} bits'}
+            result = sampler.sample(bqm, num_reads=reads, **additional_kwargs)
             # record energy levels
             all_energies[bit_ix, qubo_ix, ...] = energy_arrays(result, qubo)
 
     ts = timestamp()
-    with open(path.join(output, f'{n}_{ts}_meta.json'), 'w') as f:
-        json.dump(meta_info, f)
+    save_json(meta_info, path.join(output, f'{n}_{ts}_meta.json'))
     np.savez_compressed(
         path.join(output, f'{n}_{ts}_energies'),
         **{f'{b}_bits': arr for b, arr in zip(bits, all_energies)})
