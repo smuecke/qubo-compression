@@ -5,7 +5,6 @@ from typing   import Union
 
 import numpy as np
 from numpy.random import RandomState
-from numpy.typing import ArrayLike
 
 
 def get_random_state(random_state: Union[int, RandomState]):
@@ -24,6 +23,7 @@ def get_numerical_seed(seed: Union[int, str]):
         seed_ = int(seed)
     except ValueError:
         seed_ = int(md5(seed.encode('utf-8')).hexdigest(), 16) & 0xffffffff
+    return seed_
 
 
 def random_seeds(random_state: Union[int, RandomState]):

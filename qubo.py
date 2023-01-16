@@ -83,5 +83,5 @@ def to_sparse_dict(x: ArrayLike):
     # make sure that all variables are present!
     all_vars = { i for t in d.keys() for i in t }
     for i in set(range(n)).difference(all_vars):
-        d[(0,0)]=0
+        d[(i, i)]=0
     return d

@@ -59,6 +59,7 @@ def main(n: int, seed=None, output='', simulate=False):
     np.savez_compressed(
         path.join(output, f'{n}_{ts}_energies'),
         **{f'{b}_bits': arr for b, arr in zip(bits, all_energies)})
-    
+
+
 if __name__ == '__main__':
     main(**get_args())
